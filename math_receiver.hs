@@ -6,8 +6,11 @@ import Control.Monad
 -- This method will act as a dbus function which accepts a dbus string, and
 -- returns a dbus string. This works because we use testMethod via the dbus
 -- function autoMethod.
-testMethod :: String -> IO String
-testMethod x = return $ "Hello " ++ x
+square :: Double -> IO Double
+square x = return $ x**2
+
+plus :: Double -> Double -> IO Double
+plus x y = return $ x + y
 
 main :: IO ()
 main = do
@@ -16,13 +19,16 @@ main = do
 
   -- Request a mnemonical name, instead of the automatic
   -- numerical one
-  requestName client "org.jonte.Test" []
+  requestName client "org.jonte.math" []
 
   -- Export the object 'my_object' complying to the interface
   -- 'org.jonte.Test.Test'. When the object is called, testMethod will be
   -- invoked
-  export client "/my_object"
-    [autoMethod "org.jonte.Test" "Test" testMethod]
+  export client "/math_object"
+    [
+      autoMethod "org.jonte.math" "square"  square,
+      autoMethod "org.jonte.math" "plus"    plus
+    ]
 
   -- We need a sort of 'main loop' to keep the program from terminating, none of 
   -- the dbus calls above will keep the program alive.
